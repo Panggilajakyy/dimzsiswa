@@ -1,1217 +1,223 @@
 <!DOCTYPE html>
-<html lang="id">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Nilai Siswa</title>
-
-    <!--
-    ═══════════════════════════════════════════════════════
-     IMPORT FONT DARI GOOGLE FONTS
-     - Plus Jakarta Sans  → dipakai untuk teks umum (body)
-     - Fraunces           → dipakai untuk judul & angka besar
-     Dua font berbeda biar tampilannya lebih berkarakter.
-    ═══════════════════════════════════════════════════════
-    -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fraunces:ital,wght@0,700;1,400&display=swap"
-        rel="stylesheet">
-
-    <style>
-        /* ═══════════════════════════════════════════════
-           RESET CSS
-           Semua elemen HTML secara default punya margin
-           dan padding bawaan dari browser. Kita reset
-           semuanya ke 0 biar tampilan konsisten di semua
-           browser. box-sizing: border-box artinya padding
-           dan border sudah termasuk di dalam ukuran elemen.
-        ═══════════════════════════════════════════════ */
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* ═══════════════════════════════════════════════
-           CSS VARIABLES (variabel warna & font)
-           Cara mendefinisikan "variabel" di CSS menggunakan
-           --nama-variabel. Keuntungannya: kalau mau ganti
-           warna tema, cukup ubah di sini saja, tidak perlu
-           cari satu per satu di seluruh file.
-           
-           Contoh penggunaan: color: var(--accent);
-        ═══════════════════════════════════════════════ */
-        :root {
-            --bg: #f5f3ee;
-            /* warna background halaman */
-            --surface: #ffffff;
-            /* warna kartu / kotak putih */
-            --surface2: #f0ede6;
-            /* warna permukaan lebih gelap sedikit */
-            --border: #e2ddd5;
-            /* warna garis tepi (border) tipis */
-            --border2: #c9c3b8;
-            /* warna garis tepi saat hover */
-            --text: #1a1816;
-            /* warna teks utama (hampir hitam) */
-            --muted: #7a746c;
-            /* warna teks sekunder / abu-abu */
-            --accent: #c84b2f;
-            /* warna aksen merah bata (tombol, highlight) */
-            --accent-light: #fdf0ed;
-            /* versi terang dari warna aksen */
-            --green: #2d6a4f;
-            /* warna hijau untuk grade A */
-            --green-bg: #eaf4ef;
-            /* background hijau muda */
-            --amber: #92600a;
-            /* warna kuning kecokelatan untuk grade B */
-            --amber-bg: #fef6e4;
-            /* background kuning muda */
-            --red: #b91c1c;
-            /* warna merah untuk grade C / error */
-            --red-bg: #fef2f2;
-            /* background merah muda */
-            --sans: 'Plus Jakarta Sans', sans-serif;
-            /* font utama */
-            --serif: 'Fraunces', serif;
-            /* font untuk judul */
-        }
-
-        /* ═══════════════════════════════════════════════
-           BODY
-           Mengatur tampilan dasar seluruh halaman:
-           background, warna teks, jenis font, dan
-           tinggi minimum halaman minimal 100vh (full layar).
-        ═══════════════════════════════════════════════ */
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--sans);
-            min-height: 100vh;
-        }
-
-        /* ═══════════════════════════════════════════════
-           MOTIF TITIK-TITIK DI BACKGROUND
-           Menggunakan pseudo-element ::before untuk
-           menambahkan motif titik-titik di belakang konten.
-           position: fixed agar motifnya tidak ikut scroll.
-           pointer-events: none agar tidak menghalangi klik.
-           z-index: 0 agar berada paling belakang.
-        ═══════════════════════════════════════════════ */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: radial-gradient(circle, #b8b0a4 1px, transparent 1px);
-            background-size: 28px 28px;
-            opacity: 0.22;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* ═══════════════════════════════════════════════
-           CONTAINER UTAMA (.app)
-           Membatasi lebar konten maksimal 980px dan
-           memusatkannya (margin: 0 auto). z-index: 1
-           agar konten tampil di atas motif background.
-        ═══════════════════════════════════════════════ */
-        .app {
-            position: relative;
-            z-index: 1;
-            max-width: 980px;
-            margin: 0 auto;
-            padding: 48px 24px 80px;
-        }
-
-        /* ─── HEADER ─────────────────────────────────── */
-        .header {
-            margin-bottom: 36px;
-        }
-
-        /* Judul besar menggunakan font Fraunces (serif).
-           clamp() artinya ukuran font responsif:
-           minimum 34px, ideal 5vw, maksimum 54px. */
-        .page-title {
-            font-family: var(--serif);
-            font-size: clamp(34px, 5vw, 54px);
-            font-weight: 700;
-            line-height: 1.05;
-            letter-spacing: -0.5px;
-        }
-
-        /* Tag <em> di dalam judul diberi warna aksen */
-        .page-title em {
-            font-style: italic;
-            color: var(--accent);
-        }
-
-        .page-subtitle {
-            margin-top: 10px;
-            font-size: 14px;
-            color: var(--muted);
-            max-width: 440px;
-            line-height: 1.65;
-        }
-
-        /* Garis tipis pemisah bawah header */
-        .header-divider {
-            margin-top: 28px;
-            height: 1px;
-            background: var(--border);
-        }
-
-        /* ─── KARTU STATISTIK ─────────────────────────
-           Menggunakan CSS Grid dengan 3 kolom sama rata.
-           gap: 14px adalah jarak antar kartu.
-        ─────────────────────────────────────────────── */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px 22px;
-            /* transition membuat perubahan style terasa halus */
-            transition: box-shadow 0.2s, border-color 0.2s;
-        }
-
-        /* Efek saat kursor melayang di atas kartu */
-        .stat-card:hover {
-            border-color: var(--border2);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-        }
-
-        /* Kotak ikon kecil di atas angka statistik */
-        .stat-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            margin-bottom: 12px;
-        }
-
-        /* Warna background ikon berbeda tiap kartu */
-        .stat-icon.o {
-            background: var(--accent-light);
-        }
-
-        /* oranye */
-        .stat-icon.g {
-            background: var(--green-bg);
-        }
-
-        /* hijau */
-        .stat-icon.a {
-            background: var(--amber-bg);
-        }
-
-        /* kuning */
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-
-        /* Angka besar di kartu statistik pakai font serif */
-        .stat-value {
-            font-family: var(--serif);
-            font-size: 30px;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1;
-        }
-
-        /* ─── KOTAK PANDUAN ───────────────────────────
-           Kotak berwarna salmon muda berisi instruksi
-           singkat cara pakai aplikasi ini.
-        ─────────────────────────────────────────────── */
-        .guide-box {
-            background: var(--accent-light);
-            border: 1px solid #f0c5bb;
-            border-radius: 10px;
-            padding: 16px 20px;
-            margin-bottom: 24px;
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-        }
-
-        .guide-icon {
-            font-size: 17px;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .guide-text {
-            font-size: 13px;
-            color: #8b3a26;
-            line-height: 1.7;
-        }
-
-        .guide-text strong {
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        /* ─── FORM INPUT ──────────────────────────────
-           Kotak form berisi input nama, kelas, dan nilai.
-           Menggunakan CSS Grid 4 kolom: 3 input + 1 tombol.
-        ─────────────────────────────────────────────── */
-        .form-section {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 28px;
-            margin-bottom: 24px;
-        }
-
-        .form-heading {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 4px;
-        }
-
-        .form-desc {
-            font-size: 13px;
-            color: var(--muted);
-            margin-bottom: 20px;
-            line-height: 1.55;
-        }
-
-        /* Grid 4 kolom: input nama | input kelas | input nilai | tombol */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
-            gap: 12px;
-            align-items: end;
-            /* rata bawah agar tombol sejajar dengan input */
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .field label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: 0.01em;
-        }
-
-        /* Styling input teks */
-        .field input {
-            background: var(--surface2);
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: var(--sans);
-            font-size: 14px;
-            padding: 10px 13px;
-            outline: none;
-            /* hapus outline default browser */
-            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-            width: 100%;
-        }
-
-        /* Saat input diklik/aktif, tampilkan border merah & glow */
-        .field input:focus {
-            border-color: var(--accent);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(200, 75, 47, 0.1);
-        }
-
-        .field input::placeholder {
-            color: #b8b0a8;
-        }
-
-        /* ─── TOMBOL SIMPAN ───────────────────────────
-           Tombol utama berwarna aksen merah bata.
-           cursor: pointer agar kursor berubah jadi tangan.
-           transform: scale(0.97) saat diklik biar terasa
-           seperti tombol fisik yang ditekan.
-        ─────────────────────────────────────────────── */
-        .btn-save {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-family: var(--sans);
-            font-size: 14px;
-            font-weight: 700;
-            padding: 11px 22px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            white-space: nowrap;
-            align-self: end;
-        }
-
-        .btn-save:hover {
-            background: #a83a21;
-        }
-
-        .btn-save:active {
-            transform: scale(0.97);
-        }
-
-        /* ─── PESAN ERROR ─────────────────────────────
-           Kotak merah muda yang muncul saat validasi gagal.
-           Default-nya display: none (tersembunyi).
-           Kelas .show ditambahkan lewat JavaScript untuk
-           menampilkannya.
-        ─────────────────────────────────────────────── */
-        .error-msg {
-            display: none;
-            /* tersembunyi secara default */
-            background: var(--red-bg);
-            border: 1px solid #fca5a5;
-            color: var(--red);
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 13px;
-            margin-top: 14px;
-            line-height: 1.5;
-        }
-
-        /* Kelas ini ditambahkan JS untuk menampilkan error */
-        .error-msg.show {
-            display: block;
-        }
-
-        /* ─── KOLOM PENCARIAN ─────────────────────────
-           Input pencarian dengan ikon kaca pembesar
-           di sebelah kiri menggunakan position: absolute.
-        ─────────────────────────────────────────────── */
-        .search-section {
-            margin-bottom: 14px;
-        }
-
-        .search-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        .search-wrapper {
-            position: relative;
-        }
-
-        /* jadi acuan posisi ikon */
-
-        /* Ikon SVG diposisikan absolute di dalam wrapper */
-        .search-wrapper svg {
-            position: absolute;
-            left: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            /* vertikal center */
-            color: var(--muted);
-            pointer-events: none;
-            /* klik menembus ikon, langsung ke input */
-        }
-
-        .search-input {
-            background: var(--surface);
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: var(--sans);
-            font-size: 14px;
-            padding: 10px 13px 10px 40px;
-            /* kiri 40px = ruang untuk ikon */
-            outline: none;
-            width: 100%;
-            transition: border-color 0.2s;
-        }
-
-        .search-input:focus {
-            border-color: var(--border2);
-        }
-
-        .search-input::placeholder {
-            color: #b8b0a8;
-        }
-
-        /* ─── TABEL DATA SISWA ────────────────────────
-           Tabel dibungkus .table-section agar punya
-           rounded corner dan border yang rapi.
-           overflow: hidden agar border-radius tabel
-           tidak keluar dari wrapper.
-        ─────────────────────────────────────────────── */
-        .table-section {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            overflow: hidden;
-        }
-
-        /* Header tabel berisi judul + counter jumlah siswa */
-        .table-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .table-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        /* Badge bulat kecil yang menampilkan jumlah siswa */
-        .table-count {
-            font-size: 12px;
-            color: var(--muted);
-            background: var(--surface2);
-            padding: 3px 10px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-        }
-
-        /* table-layout: fixed agar lebar kolom sesuai yang kita set */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        /* Baris header tabel (nama kolom) */
-        thead th {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            /* huruf kapital semua */
-            color: var(--muted);
-            padding: 12px 20px;
-            text-align: left;
-            background: var(--surface2);
-            border-bottom: 1px solid var(--border);
-        }
-
-        /* Kolom nilai & rata-rata rata tengah, kolom aksi rata kanan */
-        thead th:nth-child(3),
-        thead th:nth-child(4) {
-            text-align: center;
-        }
-
-        thead th:last-child {
-            text-align: right;
-        }
-
-        /* Styling baris data */
-        tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background 0.12s;
-        }
-
-        tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        /* baris terakhir tidak perlu border bawah */
-        tbody tr:hover {
-            background: #faf8f6;
-        }
-
-        /* efek hover baris */
-
-        tbody td {
-            padding: 14px 20px;
-            font-size: 14px;
-        }
-
-        tbody td:nth-child(3),
-        tbody td:nth-child(4) {
-            text-align: center;
-        }
-
-        tbody td:last-child {
-            text-align: right;
-        }
-
-        /* Nama siswa tampil lebih tebal */
-        .student-name {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text);
-        }
-
-        /* Tag kelas berbentuk kotak kecil */
-        .kelas-tag {
-            display: inline-block;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--muted);
-            font-size: 12px;
-            font-weight: 500;
-            padding: 3px 9px;
-            border-radius: 5px;
-        }
-
-        /* ─── BADGE GRADE ─────────────────────────────
-           Menampilkan angka nilai + badge huruf grade
-           secara berdampingan (inline-flex).
-           Warna berbeda untuk Grade A, B, dan C.
-        ─────────────────────────────────────────────── */
-        .grade {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-        }
-
-        /* Angka nilai pakai font serif agar lebih menonjol */
-        .grade-score {
-            font-family: var(--serif);
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .grade-badge {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 5px;
-            letter-spacing: 0.04em;
-        }
-
-        /* Grade A = hijau */
-        .grade-a .grade-score {
-            color: var(--green);
-        }
-
-        .grade-a .grade-badge {
-            background: var(--green-bg);
-            color: var(--green);
-        }
-
-        /* Grade B = kuning kecokelatan */
-        .grade-b .grade-score {
-            color: var(--amber);
-        }
-
-        .grade-b .grade-badge {
-            background: var(--amber-bg);
-            color: var(--amber);
-        }
-
-        /* Grade C = merah */
-        .grade-c .grade-score {
-            color: var(--red);
-        }
-
-        .grade-c .grade-badge {
-            background: var(--red-bg);
-            color: var(--red);
-        }
-
-        /* ─── TOMBOL AKSI (UBAH & HAPUS) ─────────────
-           Tombol kecil di kolom Aksi. Defaultnya
-           transparan, baru berwarna saat dihover.
-        ─────────────────────────────────────────────── */
-        .action-group {
-            display: flex;
-            gap: 6px;
-            justify-content: flex-end;
-        }
-
-        .btn-action {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            font-family: var(--sans);
-            font-size: 12px;
-            font-weight: 500;
-            padding: 5px 11px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        /* Hover tombol Ubah: background abu-abu */
-        .btn-action:hover {
-            border-color: var(--border2);
-            color: var(--text);
-            background: var(--surface2);
-        }
-
-        /* Hover tombol Hapus: background merah */
-        .btn-action.delete:hover {
-            border-color: #fca5a5;
-            color: var(--red);
-            background: var(--red-bg);
-        }
-
-        /* ─── EMPTY STATE ─────────────────────────────
-           Tampilan saat tabel kosong (belum ada data
-           atau hasil pencarian tidak ditemukan).
-        ─────────────────────────────────────────────── */
-        .empty-state {
-            padding: 52px 20px;
-            text-align: center;
-        }
-
-        .empty-icon {
-            font-size: 34px;
-            margin-bottom: 12px;
-        }
-
-        .empty-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 6px;
-        }
-
-        .empty-desc {
-            font-size: 13px;
-            color: var(--muted);
-            line-height: 1.65;
-            max-width: 320px;
-            margin: 0 auto;
-        }
-
-        .footer-note {
-            margin-top: 24px;
-            text-align: center;
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        /* ─── RESPONSIVE (HP/TABLET) ──────────────────
-           Di layar kecil (≤640px), form berubah jadi
-           2 kolom, dan tombol Simpan melebar penuh.
-        ─────────────────────────────────────────────── */
-        @media(max-width: 640px) {
-            .form-row {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .btn-save {
-                grid-column: span 2;
-            }
-
-            /* tombol lebar penuh */
-            .stats-row {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        /* ─── ANIMASI MASUK ───────────────────────────
-           Elemen muncul dari bawah ke atas dengan fade-in.
-           animation-delay bisa ditambahkan untuk efek
-           stagger (muncul bergantian).
-        ─────────────────────────────────────────────── */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .form-section,
-        .stats-row,
-        .table-section {
-            animation: fadeUp 0.3s ease both;
-        }
-
-        /* Setiap baris tabel juga animasi saat muncul */
-        tbody tr {
-            animation: fadeUp 0.18s ease both;
-        }
-    </style>
+  <title>CRUD Siswa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #0f172a, #111827);
+      color: #e2e8f0;
+      padding: 20px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(56,189,248,0.15), transparent 60%);
+      z-index: -1;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    input {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 6px;
+      border: none;
+      background: #1f2937;
+      color: white;
+    }
+
+    input:focus {
+      box-shadow: 0 0 5px #38bdf8;
+    }
+
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .search {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    th {
+      background: #0ea5e9;
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #1f2937;
+    }
+
+    tr:hover {
+      background: #1e293b;
+    }
+
+    /* kolom aksi di kanan */
+    .aksi {
+      text-align: right;
+    }
+
+    .aksi button {
+      margin-left: 5px;
+    }
+
+    .rata {
+      margin-top: 15px;
+      text-align: right;
+      color: #38bdf8;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body>
-    <div class="app">
 
-        <!-- ══════════════════════════════════════════
-         HEADER
-         Berisi judul halaman dan deskripsi singkat.
-         Tag <em> di dalam <h1> memberi warna aksen
-         pada kata "Siswa".
-    ══════════════════════════════════════════ -->
-        <header class="header">
-            <h1 class="page-title">Data Nilai <em>Siswa</em></h1>
-            <p class="page-subtitle">Catat, kelola, dan pantau perkembangan nilai siswa dengan mudah. Semua data
-                tersimpan otomatis di browser.</p>
-            <div class="header-divider"></div>
-        </header>
+<div class="container">
+  <h1>CRUD Siswa By Dimas Zaky Ibrahim</h1>
 
-        <!-- ══════════════════════════════════════════
-         KARTU STATISTIK
-         Menampilkan 3 angka ringkasan:
-         total siswa, rata-rata kelas, nilai tertinggi.
-         Nilainya diisi otomatis oleh fungsi tampil().
-    ══════════════════════════════════════════ -->
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-icon o">👤</div>
-                <div class="stat-label">Jumlah Siswa</div>
-                <div class="stat-value" id="statTotal">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon g">📊</div>
-                <div class="stat-label">Rata-rata Kelas</div>
-                <div class="stat-value" id="statAvg">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon a">🏆</div>
-                <div class="stat-label">Nilai Tertinggi</div>
-                <div class="stat-value" id="statTop">—</div>
-            </div>
-        </div>
+  <!-- FORM -->
+  <input type="text" id="nama" placeholder="Nama">
+  <input type="text" id="kelas" placeholder="Kelas">
+  <input type="number" id="nilai" placeholder="Nilai (0-100)">
+  <button onclick="simpan()">Simpan</button>
 
-        <!-- ══════════════════════════════════════════
-         KOTAK PANDUAN PENGGUNAAN
-         Teks instruksi singkat agar pengguna tahu
-         cara pakai aplikasi tanpa perlu membaca manual.
-    ══════════════════════════════════════════ -->
-        <div class="guide-box">
-            <div class="guide-icon">💡</div>
-            <div class="guide-text">
-                <strong>Cara pakai:</strong> Isi nama lengkap, kelas, dan nilai siswa di form di bawah, lalu klik
-                <strong>Simpan</strong>.
-                Untuk mengubah data, klik tombol <strong>Ubah</strong> pada baris yang ingin diedit.
-                Data tidak akan hilang meski browser ditutup karena tersimpan secara lokal.
-            </div>
-        </div>
+  <!-- SEARCH -->
+  <input class="search" type="text" id="search" placeholder="🔍 Cari nama..." onkeyup="tampil()">
 
-        <!-- ══════════════════════════════════════════
-         FORM INPUT DATA SISWA
-         Berisi 3 input (nama, kelas, nilai) + tombol
-         Simpan. Judul dan deskripsi form berubah
-         secara dinamis saat mode edit aktif.
-         id="formHeading" dan id="formDesc" diubah
-         dari JavaScript saat fungsi edit() dipanggil.
-    ══════════════════════════════════════════ -->
-        <div class="form-section">
-            <div class="form-heading" id="formHeading">Tambah Data Siswa Baru</div>
-            <div class="form-desc" id="formDesc">Isi ketiga kolom di bawah ini, lalu klik tombol Simpan. Semua kolom
-                wajib diisi.</div>
+  <!-- TABLE -->
+  <table>
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>Kelas</th>
+        <th>Nilai</th>
+        <th class="aksi">Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="data"></tbody>
+  </table>
 
-            <div class="form-row">
-                <div class="field">
-                    <label for="nama">Nama Lengkap</label>
-                    <input type="text" id="nama" placeholder="Contoh: Budi Santoso" autocomplete="off">
-                </div>
-                <div class="field">
-                    <label for="kelas">Kelas</label>
-                    <input type="text" id="kelas" placeholder="Contoh: XII IPA 1" autocomplete="off">
-                </div>
-                <div class="field">
-                    <label for="nilai">Nilai (0 sampai 100)</label>
-                    <!-- type="number" mencegah input huruf, min/max untuk validasi dasar browser -->
-                    <input type="number" id="nilai" placeholder="Contoh: 85" min="0" max="100">
-                </div>
-                <!-- onclick="simpan()" memanggil fungsi simpan() saat tombol diklik -->
-                <button class="btn-save" id="btnSimpan" onclick="simpan()">Simpan</button>
-            </div>
+  <div class="rata" id="rata"></div>
+</div>
 
-            <!-- Kotak error, tersembunyi secara default.
-             Ditampilkan oleh fungsi showError() lewat kelas .show -->
-            <div class="error-msg" id="errorMsg"></div>
-        </div>
+<script>
+let siswa = JSON.parse(localStorage.getItem("siswa")) || [];
+let indexEdit = null;
 
-        <!-- ══════════════════════════════════════════
-         KOLOM PENCARIAN
-         onkeyup="tampil()" artinya setiap kali pengguna
-         mengetik satu huruf, fungsi tampil() langsung
-         dipanggil untuk memfilter data secara real-time.
-    ══════════════════════════════════════════ -->
-        <div class="search-section">
-            <label class="search-label" for="search">Cari Siswa</label>
-            <div class="search-wrapper">
-                <!-- Ikon kaca pembesar SVG (bukan gambar/emoji) -->
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input type="text" class="search-input" id="search" placeholder="Ketik nama siswa untuk mencari..."
-                    onkeyup="tampil()">
-            </div>
-        </div>
+function tampil() {
+  const body = document.getElementById("data");
+  const keyword = document.getElementById("search").value.toLowerCase();
+  body.innerHTML = "";
 
-        <!-- ══════════════════════════════════════════
-         TABEL DATA SISWA
-         id="data" di dalam <tbody> adalah target
-         yang diisi oleh JavaScript dengan innerHTML.
-         Isi tabel dibuat dinamis oleh fungsi tampil().
-    ══════════════════════════════════════════ -->
-        <div class="table-section">
-            <div class="table-header">
-                <span class="table-title">Daftar Siswa</span>
-                <!-- Angka di sini diperbarui otomatis oleh fungsi tampil() -->
-                <span class="table-count" id="tableCount">0 siswa</span>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:28%">Nama Siswa</th>
-                        <th style="width:18%">Kelas</th>
-                        <th style="width:18%">Nilai</th>
-                        <th style="width:16%">Rata-rata</th>
-                        <th style="width:20%">Aksi</th>
-                    </tr>
-                </thead>
-                <!-- tbody ini dikosongkan & diisi ulang setiap kali tampil() dipanggil -->
-                <tbody id="data"></tbody>
-            </table>
-        </div>
+  let total = 0;
+  let jumlah = 0;
 
-        <p class="footer-note">Data hanya tersimpan di browser ini dan tidak dikirim ke server manapun.</p>
+  siswa.forEach((s, i) => {
+    if (s.nama.toLowerCase().includes(keyword)) {
+      body.innerHTML += `
+        <tr>
+          <td>${s.nama}</td>
+          <td>${s.kelas}</td>
+          <td>${s.nilai}</td>
+          <td class="aksi">
+            <button onclick="edit(${i})">Edit</button>
+            <button onclick="hapus(${i})">Hapus</button>
+          </td>
+        </tr>
+      `;
 
-    </div>
+      total += Number(s.nilai);
+      jumlah++;
+    }
+  });
 
-    <!-- ══════════════════════════════════════════════════════
-     JAVASCRIPT — LOGIKA APLIKASI
-     Semua kode JS diletakkan di bawah HTML agar elemen
-     sudah ada di DOM sebelum JS mulai berjalan.
-══════════════════════════════════════════════════════ -->
-    <script>
+  let rata = jumlah ? (total / jumlah).toFixed(2) : 0;
+  document.getElementById("rata").innerText = "Rata-rata Nilai: " + rata;
 
-        /*
-        ═══════════════════════════════════════════════════════
-         VARIABEL GLOBAL
-    
-         siswa  → array yang menyimpan semua data siswa.
-                  Diambil dari localStorage kalau ada, atau
-                  mulai dari array kosong [] kalau belum ada.
-                  localStorage.getItem("siswa") mengembalikan
-                  string JSON, jadi perlu di-parse dulu ke array.
-    
-         indexEdit → menyimpan nomor index siswa yang sedang
-                     diedit. Nilainya null kalau sedang mode
-                     tambah (bukan edit).
-        ═══════════════════════════════════════════════════════
-        */
-        let siswa = JSON.parse(localStorage.getItem("siswa")) || [];
-        let indexEdit = null;
+  localStorage.setItem("siswa", JSON.stringify(siswa));
+}
 
+function simpan() {
+  const nama = document.getElementById("nama").value;
+  const kelas = document.getElementById("kelas").value;
+  const nilai = document.getElementById("nilai").value;
 
-        /*
-        ═══════════════════════════════════════════════════════
-         FUNGSI: getGrade(n)
-         
-         Tujuan : menentukan grade (A/B/C) berdasarkan nilai.
-         Input  : n = angka nilai (misal: 90, 75, 60)
-         Output : objek { cls, label }
-                  - cls   = nama kelas CSS untuk warna badge
-                  - label = huruf grade yang ditampilkan
-    
-         Logika :
-           - nilai >= 85  → Grade A (hijau)
-           - nilai >= 70  → Grade B (kuning)
-           - nilai < 70   → Grade C (merah)
-        ═══════════════════════════════════════════════════════
-        */
-        function getGrade(n) {
-            if (n >= 85) return { cls: 'grade-a', label: 'A' };
-            if (n >= 70) return { cls: 'grade-b', label: 'B' };
-            return { cls: 'grade-c', label: 'C' };
-        }
+  if (nama === "" || kelas === "" || nilai === "") {
+    alert("Semua data wajib diisi");
+    return;
+  }
 
+  if (nilai < 0 || nilai > 100) {
+    alert("Nilai harus antara 0 - 100");
+    return;
+  }
 
-        /*
-        ═══════════════════════════════════════════════════════
-         FUNGSI: tampil()
-         
-         Tujuan : menampilkan semua data siswa ke dalam tabel,
-                  memperbarui statistik, dan menyimpan ke
-                  localStorage.
-    
-         Dipanggil saat :
-           - Halaman pertama kali dibuka (tampil() di akhir)
-           - Pengguna mengetik di kolom pencarian (onkeyup)
-           - Setelah data ditambah, diubah, atau dihapus
-        ═══════════════════════════════════════════════════════
-        */
-        function tampil() {
-            // Ambil elemen tbody dan isi teks pencarian
-            const tbody = document.getElementById("data");
-            const search = document.getElementById("search").value.toLowerCase();
+  if (indexEdit === null) {
+    siswa.push({ nama, kelas, nilai });
+  } else {
+    siswa[indexEdit] = { nama, kelas, nilai };
+    indexEdit = null;
+  }
 
-            // Kosongkan dulu isi tabel sebelum diisi ulang
-            tbody.innerHTML = "";
+  document.getElementById("nama").value = "";
+  document.getElementById("kelas").value = "";
+  document.getElementById("nilai").value = "";
 
-            // Filter array siswa: hanya tampilkan yang namanya
-            // mengandung teks pencarian (toLowerCase agar case-insensitive)
-            const filtered = siswa.filter(s => s.nama.toLowerCase().includes(search));
+  tampil();
+}
 
-            // Perbarui badge counter jumlah siswa yang tampil
-            document.getElementById("tableCount").innerText = filtered.length + " siswa";
+function edit(i) {
+  document.getElementById("nama").value = siswa[i].nama;
+  document.getElementById("kelas").value = siswa[i].kelas;
+  document.getElementById("nilai").value = siswa[i].nilai;
+  indexEdit = i;
+}
 
-            // ── Jika tidak ada data yang cocok ──
-            if (filtered.length === 0) {
-                const isEmpty = siswa.length === 0; // cek apakah memang belum ada data sama sekali
+function hapus(i) {
+  if (confirm("Hapus data ini?")) {
+    siswa.splice(i, 1);
+    tampil();
+  }
+}
 
-                // Tampilkan pesan berbeda: belum ada data VS tidak ditemukan
-                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
-                <div class="empty-icon">${isEmpty ? '📋' : '🔍'}</div>
-                <div class="empty-title">${isEmpty ? 'Belum ada data siswa' : 'Siswa tidak ditemukan'}</div>
-                <div class="empty-desc">${isEmpty
-                        ? 'Mulai dengan mengisi form di atas untuk menambahkan data siswa pertama.'
-                        : 'Coba gunakan kata kunci lain atau periksa kembali ejaan nama siswa.'
-                    }</div>
-            </div></td></tr>`;
+tampil();
+</script>
 
-            } else {
-                // ── Jika ada data, render setiap baris tabel ──
-                filtered.forEach(s => {
-                    // Cari index asli di array siswa (bukan index filtered)
-                    // agar tombol edit/hapus menarget data yang benar
-                    const i = siswa.indexOf(s);
-
-                    // Dapatkan grade berdasarkan nilai
-                    const g = getGrade(parseFloat(s.nilai));
-
-                    // Tambahkan baris HTML ke tbody menggunakan template literal
-                    // onclick="edit(${i})" → memanggil edit() dengan index asli
-                    // onclick="hapus(${i})" → memanggil hapus() dengan index asli
-                    tbody.innerHTML += `
-                <tr>
-                    <td><span class="student-name">${s.nama}</span></td>
-                    <td><span class="kelas-tag">${s.kelas}</span></td>
-                    <td>
-                        <span class="grade ${g.cls}">
-                            <span class="grade-score">${s.nilai}</span>
-                            <span class="grade-badge">Grade ${g.label}</span>
-                        </span>
-                    </td>
-                    <td style="color:var(--muted);font-size:13px;">${parseFloat(s.nilai).toFixed(2)}</td>
-                    <td>
-                        <div class="action-group">
-                            <button class="btn-action" onclick="edit(${i})">Ubah</button>
-                            <button class="btn-action delete" onclick="hapus(${i})">Hapus</button>
-                        </div>
-                    </td>
-                </tr>`;
-                });
-            }
-
-            // ── Perbarui kartu statistik ──
-            document.getElementById("statTotal").innerText = siswa.length;
-
-            if (siswa.length > 0) {
-                // Hitung total semua nilai lalu bagi jumlah siswa
-                const total = siswa.reduce((akumulasi, s) => akumulasi + parseFloat(s.nilai), 0);
-                document.getElementById("statAvg").innerText = (total / siswa.length).toFixed(1);
-
-                // Math.max() dengan spread operator untuk cari nilai terbesar
-                document.getElementById("statTop").innerText = Math.max(...siswa.map(s => parseFloat(s.nilai)));
-            } else {
-                // Tampilkan "—" kalau belum ada data
-                document.getElementById("statAvg").innerText = '—';
-                document.getElementById("statTop").innerText = '—';
-            }
-
-            // Simpan array siswa ke localStorage sebagai string JSON
-            // Ini yang membuat data tidak hilang saat browser ditutup
-            localStorage.setItem("siswa", JSON.stringify(siswa));
-        }
-
-
-        /*
-        ═══════════════════════════════════════════════════════
-         FUNGSI: showError(msg)
-         
-         Tujuan : menampilkan pesan error di dalam form
-                  selama 3.5 detik, lalu otomatis hilang.
-         Input  : msg = string teks pesan error
-        ═══════════════════════════════════════════════════════
-        */
-        function showError(msg) {
-            const el = document.getElementById("errorMsg");
-            el.textContent = msg;           // isi teks pesan error
-            el.classList.add("show");       // tampilkan dengan menambah kelas .show
-
-            // Setelah 3500ms (3.5 detik), hapus kelas .show → kotak error hilang
-            setTimeout(() => el.classList.remove("show"), 3500);
-        }
-
-
-        /*
-        ═══════════════════════════════════════════════════════
-         FUNGSI: simpan()
-         
-         Tujuan : memproses form input — bisa untuk TAMBAH
-                  data baru, atau UPDATE data yang sedang diedit.
-                  Fungsi ini juga menjalankan validasi.
-         
-         Dipanggil saat : tombol "Simpan" diklik, atau Enter ditekan
-    
-         Alur logika:
-           1. Ambil nilai dari setiap input
-           2. Validasi: semua harus terisi & nilai 0-100
-           3. Jika indexEdit = null → tambah data baru (push)
-              Jika indexEdit ada → update data lama (replace)
-           4. Kosongkan form, panggil tampil()
-        ═══════════════════════════════════════════════════════
-        */
-        function simpan() {
-            // Ambil nilai dari masing-masing input & bersihkan spasi
-            const nama = document.getElementById("nama").value.trim();
-            const kelas = document.getElementById("kelas").value.trim();
-            const nilai = parseFloat(document.getElementById("nilai").value);
-
-            // ── Validasi 1: semua kolom harus terisi ──
-            // isNaN(nilai) = true kalau input nilai kosong atau bukan angka
-            if (!nama || !kelas || isNaN(nilai)) {
-                showError("Semua kolom wajib diisi. Pastikan nama, kelas, dan nilai sudah terisi sebelum menyimpan.");
-                return; // hentikan fungsi, jangan lanjut simpan
-            }
-
-            // ── Validasi 2: nilai harus antara 0 dan 100 ──
-            if (nilai < 0 || nilai > 100) {
-                showError("Nilai tidak valid. Masukkan angka antara 0 sampai 100.");
-                return;
-            }
-
-            // ── Mode TAMBAH: indexEdit masih null ──
-            if (indexEdit === null) {
-                // push() menambahkan objek baru ke akhir array siswa
-                siswa.push({ nama, kelas, nilai });
-
-                // ── Mode EDIT: indexEdit berisi index yang sedang diedit ──
-            } else {
-                siswa[indexEdit] = { nama, kelas, nilai }; // timpa data lama
-
-                // Reset semua penanda mode edit
-                indexEdit = null;
-                document.getElementById("btnSimpan").innerText = "Simpan";
-                document.getElementById("formHeading").innerText = "Tambah Data Siswa Baru";
-                document.getElementById("formDesc").innerText = "Isi ketiga kolom di bawah ini, lalu klik tombol Simpan. Semua kolom wajib diisi.";
-            }
-
-            // Kosongkan semua input form setelah data disimpan
-            document.getElementById("nama").value = "";
-            document.getElementById("kelas").value = "";
-            document.getElementById("nilai").value = "";
-
-            // Fokus kembali ke input nama agar user bisa langsung input berikutnya
-            document.getElementById("nama").focus();
-
-            // Render ulang tabel dengan data terbaru
-            tampil();
-        }
-
-
-        /*
-        ═══════════════════════════════════════════════════════
-         FUNGSI: edit(i)
-         
-         Tujuan : mengisi form dengan data siswa yang dipilih
-                  untuk diedit. Mengaktifkan mode edit.
-         Input  : i = index siswa di dalam array siswa[]
-         
-         Yang dilakukan:
-           1. Isi input form dengan data siswa ke-i
-           2. Simpan index ke variabel indexEdit
-           3. Ubah teks tombol & deskripsi form
-           4. Scroll ke atas agar form terlihat
-        ═══════════════════════════════════════════════════════
-        */
-        function edit(i) {
-            // Isi input form dengan data siswa yang akan diedit
-            document.getElementById("nama").value = siswa[i].nama;
-            document.getElementById("kelas").value = siswa[i].kelas;
-            document.getElementById("nilai").value = siswa[i].nilai;
-
-            // Tandai bahwa kita sedang mode edit pada index i
-            indexEdit = i;
-
-            // Ubah tampilan form agar user tahu sedang dalam mode edit
-            document.getElementById("btnSimpan").innerText = "Simpan Perubahan";
-            document.getElementById("formHeading").innerText = "Ubah Data Siswa";
-            document.getElementById("formDesc").innerText =
-                `Kamu sedang mengubah data milik ${siswa[i].nama}. Edit kolom yang perlu diubah, lalu klik "Simpan Perubahan".`;
-
-            // Fokus ke input nama
-            document.getElementById("nama").focus();
-
-            // Scroll halaman ke atas agar form input terlihat
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-
-        /*
-        ═══════════════════════════════════════════════════════
-         FUNGSI: hapus(i)
-         
-         Tujuan : menghapus data siswa setelah konfirmasi.
-         Input  : i = index siswa di dalam array siswa[]
-         
-         confirm() menampilkan dialog konfirmasi bawaan browser.
-         Kalau user klik OK → hapus, klik Cancel → batal.
-         splice(i, 1) menghapus 1 elemen pada posisi index i.
-        ═══════════════════════════════════════════════════════
-        */
-        function hapus(i) {
-            // Minta konfirmasi sebelum menghapus
-            if (confirm(`Hapus data siswa "${siswa[i].nama}"?\nData yang sudah dihapus tidak bisa dikembalikan.`)) {
-                siswa.splice(i, 1); // hapus 1 elemen di index i
-                tampil();           // render ulang tabel
-            }
-            // Kalau user klik Cancel, tidak terjadi apa-apa
-        }
-
-
-        /*
-        ═══════════════════════════════════════════════════════
-         EVENT LISTENER: keyboard shortcut Enter
-    
-         Memungkinkan pengguna menekan Enter di input form
-         untuk menyimpan data, tanpa harus klik tombol.
-         
-         e.target.id → cek apakah yang aktif saat Enter
-         ditekan adalah salah satu input form kita.
-        ═══════════════════════════════════════════════════════
-        */
-        document.addEventListener("keydown", e => {
-            if (e.key === "Enter" && ["nama", "kelas", "nilai"].includes(e.target.id)) {
-                simpan();
-            }
-        });
-
-
-        /*
-        ═══════════════════════════════════════════════════════
-         INISIALISASI
-         
-         tampil() dipanggil pertama kali saat halaman dibuka
-         agar data dari localStorage langsung ditampilkan
-         ke tabel tanpa perlu interaksi dari user.
-        ═══════════════════════════════════════════════════════
-        */
-        tampil();
-
-    </script>
 </body>
-
 </html>
